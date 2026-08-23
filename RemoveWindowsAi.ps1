@@ -2316,7 +2316,6 @@ function Remove-AI-Appx-Packages {
             'MicrosoftWindows.*.Voiess'
             'MicrosoftWindows.*.Speion'
             'MicrosoftWindows.*.Livtop'
-            'MicrosoftWindows.*.InpApp'
             'MicrosoftWindows.*.Filons'
             #ai component packages installed on copilot+ pcs
             'WindowsWorkload.Data.Analysis*'
@@ -2671,7 +2670,6 @@ function Remove-AI-Files {
             'Voiess'
             'Speion'
             'Livtop'
-            'InpApp'
             'Filons'
         )
 
