@@ -198,11 +198,15 @@ If you would like to support my work consider donating :)
 
 
 
+### Trophies
 
+<p align="left">
+ <a href="https://www.star-history.com/zoicware/removewindowsai">
+  <picture><source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/badge?repo=zoicware/RemoveWindowsAI&type=rank&theme=dark" /><source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/badge?repo=zoicware/RemoveWindowsAI&type=rank" /><img alt="Star History Rank" src="https://api.star-history.com/badge?repo=zoicware/RemoveWindowsAI&type=rank" /></picture> <picture><source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/badge?repo=zoicware/RemoveWindowsAI&type=trending&theme=dark" /><source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/badge?repo=zoicware/RemoveWindowsAI&type=trending" /><img alt="GitHub Trending Repository of the Day" src="https://api.star-history.com/badge?repo=zoicware/RemoveWindowsAI&type=trending" /></picture>
+ </a>
+</p>
 
-
-
-
+<img src="https://img.shields.io/badge/%23_12-Top%20100%20PowerShell%20Repos-gold?style=for-the-badge&logo=powershell&logoColor=white" alt="Top 100 PowerShell Repos - #12" />
 
 
 
