@@ -1623,13 +1623,11 @@ public class TaskbarUnpinByAumid {
         }
     }
 
-    #TODO TEST
-    <#
     $voice = Get-PnpDevice -PresentOnly | Where-Object { $_.Status -eq 'OK' -and $_.Name -eq 'Voice Clarity' }
     if ($voice) {
         Write-Status -msg 'Removing and blocking AI voice effect driver...'
         #remove with pnputil and then block reinstall
-        pnputil.exe /remove-device $voice.InstanceId 
+        pnputil.exe /remove-device $voice.InstanceId >$null
 
         $policyPath = 'HKLM\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall\Restrictions'
         $denyPath = "$policyPath\DenyInstanceIDs"
@@ -1648,7 +1646,7 @@ public class TaskbarUnpinByAumid {
         }
         Reg.exe add $denyPath /v $regKeyNum /t REG_SZ /d $voice.InstanceID /f *>$null
     }
-    #>
+    
 
     #disable gaming copilot 
     #found from: https://github.com/meetrevision/playbook/issues/197
