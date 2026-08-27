@@ -297,7 +297,6 @@ foreach ($choice in $aipackagesarray) {
         'MicrosoftWindows.*.Voiess'
         'MicrosoftWindows.*.Speion'
         'MicrosoftWindows.*.Livtop'
-        'MicrosoftWindows.*.InpApp'
         'MicrosoftWindows.*.Filons'
         #ai component packages installed on copilot+ pcs
         'WindowsWorkload.Data.Analysis*'
