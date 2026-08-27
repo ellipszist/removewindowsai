@@ -21,8 +21,19 @@
   - Various PowerShell commands will be ran hidden from the user allowing the script to remove items and packages that are locked via System Privileges
  
 #### Registry Keys
-- I have collected all registry keys regarding AI disablement, including Notepad, Paint, and Edge.
-  - Some of these are Group Policies so if you see any AI feature settings greyed out with the message `Some Settings are Managed by Your Organization` this is why
+- The script applies every registry key regarding AI including undocumented and widely unknown ones found by reverse engeneering. Group policy keys will also be applied to the corresponding pol file to reflect changes in gpedit.msc.
+
+#### Disable AI in Edge
+- The script applies all AI related policies and edits Edge's `local state` file that contains experimental flags to completely disable copilot mode.
+
+#### Disable Gaming Copilot
+- (removed by microsoft in newest builds) The script edits xbox gaming overlay's json settings file to disable/hide gaming copilot. 
+
+#### Disable AI Voice Effects for Mic
+- This will properly disable the AI voice effect feature for any mic.
+
+#### Disable AI in UWP Apps
+- UWP store apps commonly use a settings.dat file that can be loaded into registry to modify internal settings, this is done for multiple apps such as Photos and Snipping Tool to disable hidden AI features. 
  
 #### Prevent Reinstall of AI Packages
 - This option will install a custom Windows Update package to make Windows think that there is already a newer version of the AI package installed.
@@ -59,8 +70,7 @@
 - Additionally, various other reg keys and files are removed to ensure a proper cleanup of AI features
 
 #### Disable Rewrite In Notepad
-- There is two methods of doing this, the first way is loading the settings.dat file from notepads appdata directory into registry and setting the `RewriteEnabled` key to false
-- Later on Microsoft added a much simpler policy to disable this, the script does both methods to be sure its disabled 
+- Applies the disable rewrite group policy.
 
 #### Remove Recall Scheduled Task
 - This will create another sub script in `%TEMP%` in order to run with system privileges
@@ -69,3 +79,7 @@
 #### Install Classic Apps
 - This will allow you to replace/install the classic version of notepad, paint, photo viewer, and photos legacy (uwp store app)
   - Mspaint and Snipping Tool files found in the repo are extracted from Windows Server 2025 ISO as the desktop experience edition of server uses these classic apps
+
+
+#### Disable Defender AI
+- Windows defender now contains AI agent protection, to disable this feature and the process that always runs the script uses defender powershell cmdlets and IFEO debugger exploit. 
