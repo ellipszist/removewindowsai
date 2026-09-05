@@ -1623,7 +1623,7 @@ public class TaskbarUnpinByAumid {
         }
     }
 
-    $voice = Get-PnpDevice -PresentOnly | Where-Object { $_.Status -eq 'OK' -and $_.Name -eq 'Voice Clarity' }
+    $voice = Get-PnpDevice -PresentOnly | Where-Object { $_.Status -eq 'OK' -and $_.Name -eq 'Voice Clarity' } # funny ms typo.. the instanceid is #VOCAEFFECTPACK... and also above ^
     if ($voice) {
         Write-Status -msg 'Removing and blocking AI voice effect driver...'
         #remove with pnputil and then block reinstall
@@ -3321,6 +3321,9 @@ function Update-Cleanup-Check {
         Write-Status -msg 'Creating Update Cleanup Scheduled Task...'
         $action = New-ScheduledTaskAction -Execute 'conhost.exe' -Argument "--headless powershell.exe -ep bypass -f `"$scriptPath`""
         $trigger = New-ScheduledTaskTrigger -AtLogOn
+        #add 5 sec delay since this runs very early in the startup sequence 
+        #it seems the file system hasnt been loaded yet causing the script to not be found
+        $trigger.Delay = 'PT5S' # expects valid ISO 8601 time format
         $principal = New-ScheduledTaskPrincipal -UserId 'S-1-5-18'
         $settings = New-ScheduledTaskSettingsSet -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries 
         #create update cleanup checker task
