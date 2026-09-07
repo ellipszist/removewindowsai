@@ -824,6 +824,58 @@ public static class PolHandler {
     [PolHandler]::Write($PolPath, $final)
 }
 
+function Get-LockingProcesses {
+    param([string]$FilePath)
+
+    $script = @'
+using System;
+using System.Runtime.InteropServices;
+using System.Collections.Generic;
+
+public class RmHelper {
+    [DllImport("rstrtmgr.dll", CharSet = CharSet.Unicode)]
+    public static extern int RmStartSession(out uint pSessionHandle, int dwSessionFlags, string strSessionKey);
+    [DllImport("rstrtmgr.dll")]
+    public static extern int RmEndSession(uint pSessionHandle);
+    [DllImport("rstrtmgr.dll", CharSet = CharSet.Unicode)]
+    public static extern int RmRegisterResources(uint pSessionHandle, uint nFiles, string[] rgsFilenames, uint nApplications, [In] RM_UNIQUE_PROCESS[] rgApplications, uint nServices, string[] rgsServiceNames);
+    [DllImport("rstrtmgr.dll")]
+    public static extern int RmGetList(uint dwSessionHandle, out uint pnProcInfoNeeded, ref uint pnProcInfo, [In, Out] RM_PROCESS_INFO[] rgAffectedApps, ref uint lpdwRebootReasons);
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct RM_UNIQUE_PROCESS { public int dwProcessId; public System.Runtime.InteropServices.ComTypes.FILETIME ProcessStartTime; }
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    public struct RM_PROCESS_INFO {
+        public RM_UNIQUE_PROCESS Process;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)] public string strAppName;
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]  public string strServiceShortName;
+        public int ApplicationType; public uint AppStatus; public int TSSessionId;
+        [MarshalAs(UnmanagedType.Bool)] public bool bRestartable;
+    }
+
+    public static List<int> GetLockingPids(string path) {
+        var pids = new List<int>();
+        uint session; string key = Guid.NewGuid().ToString();
+        if (RmStartSession(out session, 0, key) != 0) return pids;
+        try {
+            RmRegisterResources(session, 1, new[] { path }, 0, null, 0, null);
+            uint needed = 0, count = 0, reasons = 0;
+            RmGetList(session, out needed, ref count, null, ref reasons);
+            if (needed > 0) {
+                var procs = new RM_PROCESS_INFO[needed]; count = needed;
+                RmGetList(session, out needed, ref count, procs, ref reasons);
+                foreach (var p in procs) pids.Add(p.Process.dwProcessId);
+            }
+        } finally { RmEndSession(session); }
+        return pids;
+    }
+}
+'@
+    Add-Type -TypeDefinition $script
+    $pids = [RmHelper]::GetLockingPids($FilePath)
+    return $pids | ForEach-Object { Get-Process -Id $_ -ErrorAction SilentlyContinue }
+}
+
 function Disable-Registry-Keys {
     #maybe add params for particular parts
 
@@ -1158,7 +1210,7 @@ function Disable-Registry-Keys {
 
         $settingsJSON = (Get-ChildItem -Path "$env:windir\SystemApps" -Recurse).FullName | Where-Object { $_ -like '*wsxpacks\Account\SettingsExtensions.json' }
         if ($settingsJSON) {
-            'SystemSettings.exe', 'ShellExperienceHost.exe' | ForEach-Object { taskkill /f /im $_ *>$null }
+            Get-LockingProcesses $settingsJSON | Stop-Process -Force
             
             $jsonContent = Get-Content $settingsJSON | ConvertFrom-Json
             $list = 'CopilotSubscriptionCard', 'CopilotSubscriptionCard_Enterprise'
