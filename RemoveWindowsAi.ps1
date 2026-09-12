@@ -362,7 +362,9 @@ public static bool SetQuickEdit(bool SetEnabled){
 }
 '@
 
-Add-Type -TypeDefinition $QuickEditCodeSnippet -Language CSharp
+if (!([System.Management.Automation.PSTypeName]'DisableConsoleQuickEdit').Type) {
+    Add-Type -TypeDefinition $QuickEditCodeSnippet -Language CSharp
+}
 
 
 function Set-QuickEdit {
@@ -871,7 +873,9 @@ public class RmHelper {
     }
 }
 '@
-    Add-Type -TypeDefinition $script
+    if (!([System.Management.Automation.PSTypeName]'RmHelper').Type) {
+        Add-Type -TypeDefinition $script
+    }
     $pids = [RmHelper]::GetLockingPids($FilePath)
     return $pids | ForEach-Object { Get-Process -Id $_ -ErrorAction SilentlyContinue }
 }
@@ -1262,7 +1266,8 @@ function Disable-Registry-Keys {
     }
 
     if (!$revert) {
-        Add-Type -TypeDefinition @'
+        if (!([System.Management.Automation.PSTypeName]'TaskbarUnpinByAumid').Type) {
+            Add-Type -TypeDefinition @'
 using System;
 using System.Runtime.InteropServices;
 
@@ -1322,6 +1327,7 @@ public class TaskbarUnpinByAumid {
     }
 }
 '@
+        }
 
         #unpin copilot 365 based on similar method from here: https://github.com/Freenitial/Pin-Taskbar
         #since this is 'SystemPinned' theres no actual lnk file associated with the pin so we can just remove the AUMID
