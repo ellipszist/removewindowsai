@@ -1221,8 +1221,7 @@ function Disable-Registry-Keys {
 
         $settingsJSON = (Get-ChildItem -Path "$env:windir\SystemApps" -Recurse).FullName | Where-Object { $_ -like '*wsxpacks\Account\SettingsExtensions.json' }
         if ($settingsJSON) {
-            Get-LockingProcesses $settingsJSON | Stop-Process -Force
-            
+        
             $jsonContent = Get-Content $settingsJSON | ConvertFrom-Json
             $list = 'CopilotSubscriptionCard', 'CopilotSubscriptionCard_Enterprise'
 
@@ -1240,14 +1239,24 @@ function Disable-Registry-Keys {
                     }
                 }
 
-                #remove the cards from the json
-                $jsonContent.addedHomeCards = $jsonContent.addedHomeCards | Where-Object { $list -notcontains $_.cardId }
+                try {
+                    Get-LockingProcesses $settingsJSON | Stop-Process -Force -ErrorAction Stop
 
-                takeown /f $settingsJSON *>$null
-                icacls $settingsJSON /grant *S-1-5-32-544:F /t *>$null
+                    #remove the cards from the json
+                    $jsonContent.addedHomeCards = $jsonContent.addedHomeCards | Where-Object { $list -notcontains $_.cardId }
 
-                $newContent = $jsonContent | ConvertTo-Json -Depth 100
-                Set-Content -Path $settingsJSON -Value $newContent -Force
+                    takeown /f $settingsJSON *>$null
+                    icacls $settingsJSON /grant *S-1-5-32-544:F /t *>$null
+
+                    $newContent = $jsonContent | ConvertTo-Json -Depth 100
+                    Set-Content -Path $settingsJSON -Value $newContent -Force
+                }
+                catch {
+                    Write-Status -msg 'SettingsExtensions.json is being locked by a system process, unable to remove copilot cards from file' -warningOutput
+                    Write-Status -msg 'Velocity IDs still applied!' -warningOutput
+                }
+
+                
             }
         }
     }
